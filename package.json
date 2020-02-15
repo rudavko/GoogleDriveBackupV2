@@ -1,0 +1,19 @@
+{
+  "name": "google-drive-backup",
+  "version": "2.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "rm -rf ./build && tsc",
+    "start": "npm run build && node build/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/node": "^13.7.1",
+    "googleapis": "^47.0.0",
+    "typescript": "^3.7.5"
+  }
+}
