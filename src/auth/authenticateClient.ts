@@ -12,7 +12,7 @@ export const getToken =
 
 export const authenticateClient =
   (oauth2Client: OAuth2Client): Promise<OAuth2Client> =>
-    getToken(oauth2Client, config.token)
+    getToken(oauth2Client, config.refreshToken)
       .then((token: Token) => {
         oauth2Client.setCredentials(token)
         return oauth2Client

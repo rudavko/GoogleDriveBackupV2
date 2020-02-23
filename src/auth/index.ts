@@ -5,7 +5,7 @@ import { authenticateClient } from './authenticateClient'
 
 export const getOAuth2Client = (): OAuth2Client => {
   const { clientId, clientSecret } = config.credentials
-  return new google.auth.OAuth2(clientId, clientSecret)
+  return new google.auth.OAuth2(clientId, clientSecret, 'http://localhost:8080')
 }
 
 export const getAuth = (): Promise<OAuth2Client> => {
