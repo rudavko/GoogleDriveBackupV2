@@ -1,6 +1,6 @@
 import { google } from 'googleapis'
 import { OAuth2Client } from 'google-auth-library'
-import config from '../config'
+import config from '../config/config'
 import { authenticateClient } from './authenticateClient'
 
 export const getOAuth2Client = (): OAuth2Client => {
