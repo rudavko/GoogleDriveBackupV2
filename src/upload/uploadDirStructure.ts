@@ -1,4 +1,4 @@
-import { getFiles } from '../files/get'
+import { getFiles } from '../files/getHierarchy'
 
 export const upload = async (dirPath: string) => {
   const files = getFiles(dirPath)
