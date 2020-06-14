@@ -1,5 +1,5 @@
 import { createServer } from 'http'
-import config from '../config'
+import config from '../config/config'
 import { Token, makeToken } from './token'
 import { OAuth2Client } from 'google-auth-library'
 import { saveToken } from './saveToken'

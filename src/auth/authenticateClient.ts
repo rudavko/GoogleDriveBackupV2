@@ -1,5 +1,5 @@
 import { OAuth2Client } from 'google-auth-library'
-import config from '../config'
+import config from '../config/config'
 import { getNewToken } from './getNewToken'
 import { Token } from './token'
 
