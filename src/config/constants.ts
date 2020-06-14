@@ -1,0 +1,1 @@
+export const FOLDER_TYPE = 'application/vnd.google-apps.folder'
