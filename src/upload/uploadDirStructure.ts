@@ -28,7 +28,7 @@ export const uploadDirStructure = async (dirPath: string, drive: drive_v3.Drive)
     if (dirent) {
       console.log('checking file', dirent.name)
       const filePath = path.join(dir.path, dirent.name)
-      const fileRequest = await drive.files.list({ q: `'${dirDriveIds[dir.path]}' in parents and name = '${dirent.name}'` })
+      const fileRequest = await drive.files.list({ q: `'${dirDriveIds[dir.path]}' in parents and name = "${dirent.name}"` })
       const files = fileRequest?.data?.files
       if (files?.length) {
         await deleteFile(filePath)
@@ -54,7 +54,7 @@ export const uploadDirStructure = async (dirPath: string, drive: drive_v3.Drive)
       }
     } else {
       const folderName = getFolderNameFromPath(dir.path)
-      const response = await drive.files.list({ q: `name = '${folderName}'` })
+      const response = await drive.files.list({ q: `name = "${folderName}"` })
       if (!response?.data?.files?.length) {
         const requestBody: { [key: string]: string | string[] } = {
           name: folderName,
