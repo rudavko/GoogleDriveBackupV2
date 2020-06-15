@@ -1,8 +1,11 @@
-import path from 'path'
 import fs from 'fs'
-import { getFiles } from '../files/getHierarchy'
+import path from 'path'
 import { drive_v3 } from 'googleapis'
-import { FOLDER_TYPE } from '../config/constants'
+import { GaxiosPromise } from 'gaxios'
+
+import { FOLDER_TYPE } from 'config/constants'
+import { getFiles } from 'files/getHierarchy'
+import { launchAndRetry } from 'async/launchAndRetry'
 
 interface FileStructure {
   [path: string]: (string | FileStructure)[]
@@ -28,7 +31,8 @@ export const uploadDirStructure = async (dirPath: string, drive: drive_v3.Drive)
     if (dirent) {
       console.log('checking file', dirent.name)
       const filePath = path.join(dir.path, dirent.name)
-      const fileRequest = await drive.files.list({ q: `'${dirDriveIds[dir.path]}' in parents and name = "${dirent.name}"` })
+      const fileRequest = await launchAndRetry<GaxiosPromise<drive_v3.Schema$FileList>>(
+        () => drive.files.list({ q: `'${dirDriveIds[dir.path]}' in parents and name = "${dirent?.name}"` }))
       const files = fileRequest?.data?.files
       if (files?.length) {
         await deleteFile(filePath)
@@ -38,13 +42,13 @@ export const uploadDirStructure = async (dirPath: string, drive: drive_v3.Drive)
         }
         console.log('uploading', dirent.name);
         console.time('uploaded ' + dirent.name)
-        const fileUpload = await drive.files.create({
+        const fileUpload = await launchAndRetry<GaxiosPromise<drive_v3.Schema$File>>(() => drive.files.create({
           media,
           requestBody: {
-            name: dirent.name,
+            name: dirent?.name,
             parents: [dirDriveIds[dir.path] || '']
           }
-        })
+        }))
         if (fileUpload?.status === 200) {
           await deleteFile(filePath)
         } else {
@@ -65,9 +69,9 @@ export const uploadDirStructure = async (dirPath: string, drive: drive_v3.Drive)
         if (parentId) {
           requestBody.parents = [parentId]
         }
-        const response = await drive.files.create({
+        const response = await launchAndRetry<GaxiosPromise<drive_v3.Schema$File>>(() => drive.files.create({
           requestBody
-        })
+        }))
         dirDriveIds[dir.path] = response?.data?.id
         console.log('created', response?.status)
       } else {
