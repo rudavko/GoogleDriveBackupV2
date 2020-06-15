@@ -14,6 +14,10 @@ interface DirDriveIds {
 export const getFolderNameFromPath = (pathName: string): string =>
   pathName.split(path.sep).pop() || ''
 
+const deleteFile = (filePath: string) => fs.promises.unlink(filePath)
+  .then(() => console.log('deleted', filePath))
+  .catch(er => console.log(er))
+
 export const uploadDirStructure = async (dirPath: string, drive: drive_v3.Drive): Promise<(FileStructure | DirDriveIds)[]> => {
   const files = getFiles(dirPath)
   const fileStructure: FileStructure = {}
@@ -23,11 +27,14 @@ export const uploadDirStructure = async (dirPath: string, drive: drive_v3.Drive)
   for await (let { dir, dirent } of files) {
     if (dirent) {
       console.log('checking file', dirent.name)
+      const filePath = path.join(dir.path, dirent.name)
       const fileRequest = await drive.files.list({ q: `'${dirDriveIds[dir.path]}' in parents and name = '${dirent.name}'` })
       const files = fileRequest?.data?.files
-      if (!files?.length) {
+      if (files?.length) {
+        await deleteFile(filePath)
+      } else {
         const media = {
-          body: fs.createReadStream(path.join(dir.path, dirent.name))
+          body: fs.createReadStream(filePath)
         }
         console.log('uploading', dirent.name);
         console.time('uploaded ' + dirent.name)
@@ -38,7 +45,9 @@ export const uploadDirStructure = async (dirPath: string, drive: drive_v3.Drive)
             parents: [dirDriveIds[dir.path] || '']
           }
         })
-        if (fileUpload?.status !== 200) {
+        if (fileUpload?.status === 200) {
+          await deleteFile(filePath)
+        } else {
           console.log(fileUpload);
         }
         console.timeEnd('uploaded ' + dirent.name)
