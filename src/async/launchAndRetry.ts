@@ -3,6 +3,7 @@ const wait = (delay: number) => new Promise(resolve => {
 })
 
 export async function launchAndRetry<T>(func: Function, delay = 0): Promise<T> {
+  if (delay) console.log('waiting for', delay)
   try {
     await wait(delay)
     return await func()
