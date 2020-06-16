@@ -8,7 +8,11 @@ export async function launchAndRetry<T>(func: Function, delay = 0): Promise<T> {
     await wait(delay)
     return await func()
   } catch (e) {
-    console.log('er', e)
+    if (e?.errors?.[0]?.reason === 'userRateLimitExceeded') {
+      console.log('userRateLimitExceeded')
+    } else {
+      console.log('er', e?.code, e?.errors)
+    }
     return await launchAndRetry(func, (delay + 1) * 2)
   }
 }
