@@ -1,2 +1,4 @@
 import path from 'path'
-export const dirPath = path.join(process.cwd(), 'dir')
+export const dirPaths = [
+  path.join(process.cwd(), 'dir'),
+]
