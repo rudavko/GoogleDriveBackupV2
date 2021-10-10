@@ -3,9 +3,9 @@ import path from 'path'
 import { drive_v3 } from 'googleapis'
 import { GaxiosPromise } from 'gaxios'
 
-import { FOLDER_TYPE } from 'config/constants'
-import { getFiles } from 'files/getHierarchy'
-import { launchAndRetry } from 'async/launchAndRetry'
+import { FOLDER_TYPE } from '../config/constants'
+import { getFiles } from '../files/getHierarchy'
+import { launchAndRetry } from '../async/launchAndRetry'
 
 interface FileStructure {
   [path: string]: (string | FileStructure)[]
@@ -17,9 +17,10 @@ interface DirDriveIds {
 export const getFolderNameFromPath = (pathName: string): string =>
   pathName.split(path.sep).pop() || ''
 
-const deleteFile = (filePath: string) => fs.promises.unlink(filePath)
-  .then(() => console.log('deleted', filePath))
-  .catch(er => console.log(er))
+const deleteFile = (filePath: string) =>
+  fs.promises.unlink(filePath)
+    .then(() => console.log('deleted', filePath))
+    .catch(er => console.log(er))
 
 export const uploadDirStructure = async (dirPath: string, drive: drive_v3.Drive): Promise<(FileStructure | DirDriveIds)[]> => {
   const files = getFiles(dirPath)
@@ -59,7 +60,9 @@ export const uploadDirStructure = async (dirPath: string, drive: drive_v3.Drive)
     } else {
       const folderName = getFolderNameFromPath(dir.path)
       const response = await drive.files.list({ q: `name = "${folderName}"` })
-      if (!response?.data?.files?.length) {
+      if (response?.data?.files?.length) {
+        dirDriveIds[dir.path] = response?.data?.files?.pop()?.id
+      } else {
         const requestBody: { [key: string]: string | string[] } = {
           name: folderName,
           mimeType: FOLDER_TYPE,
@@ -74,8 +77,6 @@ export const uploadDirStructure = async (dirPath: string, drive: drive_v3.Drive)
         }))
         dirDriveIds[dir.path] = response?.data?.id
         console.log('created', response?.status)
-      } else {
-        dirDriveIds[dir.path] = response?.data?.files?.pop()?.id
       }
     }
   }
